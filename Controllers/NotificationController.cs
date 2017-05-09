@@ -9,7 +9,8 @@ using System.IO;
 using Microsoft.WindowsAzure; // Namespace for CloudConfigurationManager
 using Microsoft.WindowsAzure.Storage; // Namespace for CloudStorageAccount
 using Microsoft.WindowsAzure.Storage.Queue; // Namespace for Queue storage types
-
+using Microsoft.ApplicationInsights;
+using Microsoft.Extensions.Options;
 
 namespace vbfreereporting.Controllers
 {
@@ -17,9 +18,18 @@ namespace vbfreereporting.Controllers
     public class NotificationController : Controller
     {
         readonly string _storageConnectionString;
-        NotificationController()
+
+        private readonly AppSettings _appSettings;
+
+        NotificationController(IOptions<AppSettings> appSettings)
         {
-            _storageConnectionString = Environment.GetEnvironmentVariable("APPSETTINGS_storageaccount");
+            _appSettings = appSettings.Value;
+
+            var telemetry = new Microsoft.ApplicationInsights.TelemetryClient();
+            telemetry.TrackTrace("Creating controller");
+            
+            _storageConnectionString = _appSettings.StorageConnectionString;
+            telemetry.TrackTrace("Creating controller" + _storageConnectionString);
         }
 
         // POST: api/notification
