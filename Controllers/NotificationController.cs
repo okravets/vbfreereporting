@@ -38,7 +38,7 @@ namespace vbfreereporting.Controllers
                     queueReference.CreateIfNotExistsAsync().ContinueWith((o) =>
                     {
                         CloudQueueMessage message = new CloudQueueMessage(hostedEmailAlertAsJson);
-                        queueReference.AddMessageAsync(message).ContinueWith((o)=>{
+                        queueReference.AddMessageAsync(message).ContinueWith((ob)=>{
                             result = Ok();
                         });
                     });
