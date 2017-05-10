@@ -11,6 +11,7 @@ using Microsoft.WindowsAzure.Storage; // Namespace for CloudStorageAccount
 using Microsoft.WindowsAzure.Storage.Queue; // Namespace for Queue storage types
 using Microsoft.ApplicationInsights;
 using Microsoft.Extensions.Options;
+using vbfreereporting;
 
 namespace vbfreereporting.Controllers
 {
@@ -19,9 +20,9 @@ namespace vbfreereporting.Controllers
     {
         readonly string _storageConnectionString;
 
-        private readonly AppSettings _appSettings;
+        private readonly ApplicationSettings _appSettings;
 
-        NotificationController(IOptions<AppSettings> appSettings)
+        NotificationController(IOptions<ApplicationSettings> appSettings)
         {
             _appSettings = appSettings.Value;
 
