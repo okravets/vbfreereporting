@@ -46,7 +46,7 @@ namespace vbfreereporting
 			loggerFactory.AddDebug();
 
 			app.UseMvc();
-			if (env.IsDevelopment())
+			//if (env.IsDevelopment())
 			{
 				app.UseDeveloperExceptionPage();
 			}
