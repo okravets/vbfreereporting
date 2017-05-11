@@ -12,6 +12,7 @@ using Microsoft.WindowsAzure.Storage.Queue; // Namespace for Queue storage types
 using Microsoft.ApplicationInsights;
 using Microsoft.Extensions.Options;
 using vbfreereporting;
+using Microsoft.Extensions.Logging;
 
 namespace vbfreereporting.Controllers
 {
@@ -21,15 +22,18 @@ namespace vbfreereporting.Controllers
 		readonly string _storageConnectionString;
 
 		private readonly ApplicationSettings _appSettings;
+		private readonly ILogger _logger;
 
-		public NotificationController(IOptions<ApplicationSettings> appSettings)
+		public NotificationController(IOptions<ApplicationSettings> appSettings, ILogger<NotificationController> logger)
 		{
 			_appSettings = appSettings.Value;
-			//
 			//var telemetry = new Microsoft.ApplicationInsights.TelemetryClient();
 			//telemetry.TrackTrace("Creating controller");
 			//
 			_storageConnectionString = _appSettings.StorageConnectionString;
+			_logger = logger;
+			_logger.LogTrace("_storageConnectionString  {0}", _storageConnectionString);
+
 		}
 
 		// POST: api/notification
@@ -41,6 +45,7 @@ namespace vbfreereporting.Controllers
 			{
 				hostedEmailAlertAsJson = bodyReader.ReadToEnd();
 			}
+			_logger.LogTrace("Received {0}", hostedEmailAlertAsJson);
 			if (hostedEmailAlertAsJson != null)
 			{
 				var storageAccount = CloudStorageAccount.Parse(_storageConnectionString);
