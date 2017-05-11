@@ -15,47 +15,45 @@ using vbfreereporting;
 
 namespace vbfreereporting.Controllers
 {
-    [Route("api/[controller]")]
-    public class NotificationController : Controller
-    {
-        readonly string _storageConnectionString;
+	[Route("api/[controller]")]
+	public class NotificationController : Controller
+	{
+		readonly string _storageConnectionString;
 
-        private readonly ApplicationSettings _appSettings;
+		private readonly ApplicationSettings _appSettings;
 
-        NotificationController(IOptions<ApplicationSettings> appSettings)
-        {
-            _appSettings = appSettings.Value;
-
-            var telemetry = new Microsoft.ApplicationInsights.TelemetryClient();
-            telemetry.TrackTrace("Creating controller");
-            
-            _storageConnectionString = _appSettings.StorageConnectionString;
-            telemetry.TrackTrace("Creating controller" + _storageConnectionString);
-        }
-
-        // POST: api/notification
-		[HttpPost]
-        public IActionResult Post(string digest)
-        {
-        	IActionResult result = NotFound();
-            using (var bodyReader = new StreamReader(Request.Body))
-            {
-    			var hostedEmailAlertAsJson = bodyReader.ReadToEnd();
-	    		if (hostedEmailAlertAsJson != null)
-                {
-                    var storageAccount = CloudStorageAccount.Parse(_storageConnectionString);
-                    var queueClient = storageAccount.CreateCloudQueueClient();
-                    var queueReference = queueClient.GetQueueReference("vbnotification-queue");
-                    queueReference.CreateIfNotExistsAsync().ContinueWith((o) =>
-                    {
-                        CloudQueueMessage message = new CloudQueueMessage(hostedEmailAlertAsJson);
-                        queueReference.AddMessageAsync(message).ContinueWith((ob)=>{
-                            result = Ok();
-                        });
-                    });
-                }
-            }
-			return result;
+		public NotificationController(IOptions<ApplicationSettings> appSettings)
+		{
+			_appSettings = appSettings.Value;
+			//
+			//var telemetry = new Microsoft.ApplicationInsights.TelemetryClient();
+			//telemetry.TrackTrace("Creating controller");
+			//
+			_storageConnectionString = _appSettings.StorageConnectionString;
 		}
-    }
+
+		// POST: api/notification
+		[HttpPost]
+		public async Task<IActionResult> Post([FromQuery]string digest)
+		{
+			string hostedEmailAlertAsJson;
+			using (var bodyReader = new StreamReader(Request.Body))
+			{
+				hostedEmailAlertAsJson = bodyReader.ReadToEnd();
+			}
+			if (hostedEmailAlertAsJson != null)
+			{
+				var storageAccount = CloudStorageAccount.Parse(_storageConnectionString);
+				var queueClient = storageAccount.CreateCloudQueueClient();
+				var queueReference = queueClient.GetQueueReference("vbnotification-queue");
+				if (await queueReference.CreateIfNotExistsAsync())
+				{
+					CloudQueueMessage message = new CloudQueueMessage(hostedEmailAlertAsJson);
+					await queueReference.AddMessageAsync(message);
+					return Ok();
+				}
+			}
+			return NotFound();
+		}
+	}
 }
