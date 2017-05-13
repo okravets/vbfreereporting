@@ -32,7 +32,7 @@ namespace vbfreereporting.Controllers
 			//
 			_storageConnectionString = _appSettings.StorageConnectionString;
 			_logger = logger;
-			_logger.LogTrace("_storageConnectionString  {0}", _storageConnectionString);
+			_logger.LogInformation("Storage connection string: {0}", _storageConnectionString.Substring(0,10));
 
 		}
 
@@ -46,13 +46,15 @@ namespace vbfreereporting.Controllers
 				hostedEmailAlertAsJson = bodyReader.ReadToEnd();
 			}
 			_logger.LogTrace("Received {0}", hostedEmailAlertAsJson);
-			if (hostedEmailAlertAsJson != null)
+			if (_storageConnectionString.StartsWith("DefaultEndpointsProtocol"))
 			{
-				var storageAccount = CloudStorageAccount.Parse(_storageConnectionString);
-				var queueClient = storageAccount.CreateCloudQueueClient();
-				var queueReference = queueClient.GetQueueReference("vbnotification-queue");
-				if (await queueReference.CreateIfNotExistsAsync())
+				if (hostedEmailAlertAsJson != null)
 				{
+					var storageAccount = CloudStorageAccount.Parse(_storageConnectionString);
+					var queueClient = storageAccount.CreateCloudQueueClient();
+					var queueReference = queueClient.GetQueueReference("vbnotification-queue");
+					await queueReference.CreateIfNotExistsAsync();
+
 					CloudQueueMessage message = new CloudQueueMessage(hostedEmailAlertAsJson);
 					await queueReference.AddMessageAsync(message);
 					return Ok();

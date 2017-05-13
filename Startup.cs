@@ -8,6 +8,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.ApplicationInsights.AspNetCore;
+using System.Diagnostics;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Options;
 
 namespace vbfreereporting
 {
@@ -21,7 +24,7 @@ namespace vbfreereporting
 				 .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
 				 .AddEnvironmentVariables();
 
-			
+
 			Configuration = builder.Build();
 		}
 
@@ -43,7 +46,8 @@ namespace vbfreereporting
 		public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
 		{
 			loggerFactory.AddConsole(Configuration.GetSection("Logging"));
-			loggerFactory.AddDebug();
+			//loggerFactory.AddDebug();
+			loggerFactory.AddDebug(LogLevel.Debug);
 
 			app.UseMvc();
 			//if (env.IsDevelopment())
