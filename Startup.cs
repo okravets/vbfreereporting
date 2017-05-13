@@ -48,6 +48,7 @@ namespace vbfreereporting
 			loggerFactory.AddConsole(Configuration.GetSection("Logging"));
 			//loggerFactory.AddDebug();
 			loggerFactory.AddDebug(LogLevel.Debug);
+			loggerFactory.AddAzureWebAppDiagnostics(); // for default setting.
 
 			app.UseMvc();
 			//if (env.IsDevelopment())

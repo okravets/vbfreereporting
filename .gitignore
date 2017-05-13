@@ -1,3 +1,7 @@
-
+packages/
+.vs/
 bin/
 obj/
+/vbfreereporting.csproj.user
+/Properties/launchSettings.json
+/appsettings.Azure.json
